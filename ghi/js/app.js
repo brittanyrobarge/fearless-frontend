@@ -1,66 +1,56 @@
-function createCard(dates, title, description, pictureUrl, location) {
-  return `
-       <div class="card mb-4 shadow-lg">
-          <img src="${pictureUrl}" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">${title}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">${location}</h6>
-            <p class="card-text">${description}</p>
-          </div>
-              <div class="card-footer">
-              <p>${dates.starts} - ${dates.ends}</p>
+window.addEventListener('DOMContentLoaded', async () => {
+
+  function createCard(name, description, location, pictureUrl, starts, ends) {
+      return `
+          <div class="col-4">
+              <div class="card shadow mb-2">
+                  <img src="${pictureUrl}" class="card-img-top">
+                  <div class="card-body">
+                      <h5 class="card-title">${name}</h5>
+                      <h6 class='card-subtitle mb-2 text-muted'>${location}</h6>
+                      <p class="card-text">${description}</p>
+                  </div>
+                  <div class='card-footer'>
+                      <p style='text-align: center; margin: 0;'>${starts.toLocaleDateString()} - ${ends.toLocaleDateString()}</p>
+                  </div>
               </div>
           </div>
-  `;
-}
-
-
-window.addEventListener('DOMContentLoaded', async () => {
-  const url ='http://localhost:8000/api/conferences/';
-
-  try {
-      const response = await fetch(url);
-      if (!response.ok) {
-          const rowTag = document.querySelector(".row");
-          const errorHtml = `<div class="alert alert-danger" role="alert">
-          Your URL is bad
-        </div>`
-          rowTag.innerHTML = errorHtml;
-      } else {
-          const data = await response.json();
-
-          for (let index=0; index< data.conferences.length; index++) {
-              const conference = data.conferences[index];
-
-              const detailURL = `http://localhost:8000${conference.href}`;
-              const detailResponse = await fetch(detailURL);
-
-              if (detailResponse.ok) {
-                  const details = await detailResponse.json();
-                  const title = details.conference.name;
-                  const description = details.conference.description;
-                  const pictureUrl = details.conference.location.picture_url;
-                  const startDate = new Date(details.conference.starts).toLocaleDateString();
-                  const endDate = new Date(details.conference.ends).toLocaleDateString();
-                  const location = details.conference.location.name;
-                  const html = createCard({starts: startDate, ends: endDate}, title, description, pictureUrl, location);
-                  // const column = document.querySelector(".row.g-2");
-                  // column.innerHTML += html;
-
-                  const col_index = index % 3;
-                  const columns = document.querySelectorAll(".col");
-                  columns[col_index].innerHTML += html;
-              }
-
-
-          }
-      }
-  } catch (error) {
-      const rowTag = document.querySelector(".row");
-          const errorHtml = `<div class="alert alert-danger" role="alert">
-          ${error}
-        </div>`
-      rowTag.innerHTML = errorHtml;
+      `;
   }
-
-});
+  
+  
+      try {
+          const url = 'http://localhost:8000/api/conferences/';
+          const response = await fetch(url);
+  
+          if (!response.ok) {
+              return alert(
+                  `${response.status}: ${response.url} ${response.statusText}`
+              );
+          } else {
+              const data = await response.json();
+  
+              for (let conference of data.conferences) {
+                  const detailUrl = `http://localhost:8000${conference.href}`;
+                  const detailResponse = await fetch(detailUrl);
+                  if (detailResponse.ok) {
+                      const details = await detailResponse.json();
+                      const name = details.conference.name;
+                      const description = details.conference.description;
+                      const location = details.conference.location.name;
+                      const pictureUrl = details.conference.location.picture_url;
+                      const starts = new Date(details.conference.starts);
+                      const ends = new Date(details.conference.ends);
+                      const html = createCard(name, description, location, pictureUrl, starts, ends);
+                      const row = document.querySelector('.row');
+                      row.innerHTML += html;
+                  }
+              }
+  
+          }
+      } catch (e) {
+          console.error(e)
+      }
+  
+  });
+  

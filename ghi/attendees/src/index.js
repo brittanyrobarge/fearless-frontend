@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
@@ -17,8 +18,8 @@ root.render(
 reportWebVitals();
 
 async function loadAttendees() {
-  const response = await fetch('http://localhost:8001/api/attendees/');
-  if (response.ok){
+  const response = await fetch("http://localhost:8001/api/attendees/");
+  if (response.ok) {
     const data = await response.json();
     root.render(
       <React.StrictMode>
@@ -26,7 +27,9 @@ async function loadAttendees() {
       </React.StrictMode>
     );
   } else {
-    console.error(response);
+    return alert(
+      `${response.status}: ${response.url} ${response.statusText}`
+  );
   }
 }
 loadAttendees();
